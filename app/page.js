@@ -7,7 +7,9 @@ export default function Home() {
   const [session, setSession] = useState(null);
   const [ready, setReady] = useState(false);
   const [email, setEmail] = useState("");
-  const [sent, setSent] = useState(false);
+  const [password, setPassword] = useState("");
+  const [mode, setMode] = useState("signup");
+  const [note, setNote] = useState("");
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -23,12 +25,14 @@ export default function Home() {
 
   async function login(e) {
     e.preventDefault();
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: window.location.origin },
-    });
-    if (!error) setSent(true);
-    else alert(error.message);
+    setNote("");
+    const fn = mode === "signup" ? supabase.auth.signUp : supabase.auth.signInWithPassword;
+    const { data, error } = await fn.call(supabase.auth, { email, password });
+    if (error) return setNote(error.message);
+    if (mode === "signup" && !data.session) {
+      setNote("Account created. If email confirmation is on in Supabase, switch it off, then log in.");
+      setMode("login");
+    }
   }
 
   async function send(e) {
@@ -61,15 +65,18 @@ export default function Home() {
 
       {!session ? (
         <div className="card">
-          {sent ? (
-            <p>Check your email for a login link, then come back to this tab.</p>
-          ) : (
-            <form onSubmit={login}>
-              <p>Enter your email and I will send you a login link.</p>
-              <input type="email" required placeholder="you@company.com" value={email} onChange={(e) => setEmail(e.target.value)} />
-              <button type="submit">Send link</button>
-            </form>
-          )}
+          <form onSubmit={login}>
+            <p>{mode === "signup" ? "Create your account to start." : "Welcome back. Log in to continue."}</p>
+            <input type="email" required placeholder="you@company.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <input type="password" required minLength={6} placeholder="Password (6+ characters)" style={{ marginTop: 8 }} value={password} onChange={(e) => setPassword(e.target.value)} />
+            <button type="submit">{mode === "signup" ? "Sign up" : "Log in"}</button>
+            {note && <p className="small">{note}</p>}
+            <p className="small">
+              <a href="#" onClick={(e) => { e.preventDefault(); setMode(mode === "signup" ? "login" : "signup"); setNote(""); }}>
+                {mode === "signup" ? "I already have an account" : "Create a new account"}
+              </a>
+            </p>
+          </form>
         </div>
       ) : (
         <div className="card">
