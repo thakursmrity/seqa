@@ -1,34 +1,39 @@
-import Anthropic from "@anthropic-ai/sdk";
-import { createClient } from "@supabase/supabase-js";
-import { SEQA_MODEL, SEQA_SYSTEM } from "../../../lib/settings";
+import { SEQA_MODEL, SEQA_FAST_MODEL, SEQA_SYSTEM } from "../../../lib/settings";
+import { requireUser, claude, textOf, errorJson } from "../../../lib/server";
+import config from "../../../data/seqa_config.json";
 
+// kind "comment": one friendly sentence after the user describes their product.
+// kind "classify": for "Other" companies, pick the buyer categories that fit.
 export async function POST(req) {
-  // 1. Only logged-in users can call Seqa.
-  const token = (req.headers.get("authorization") || "").replace("Bearer ", "");
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  );
-  const { data, error } = await supabase.auth.getUser(token);
-  if (error || !data?.user) {
+  if (!(await requireUser(req))) {
     return Response.json({ error: "Please log in first." }, { status: 401 });
   }
-
-  // 2. Call Claude on the server. The API key never reaches the browser.
-  const { messages } = await req.json();
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  const { kind, typeLabel, sells } = await req.json();
+  const clean = String(sells || "").slice(0, 300);
+  const client = claude();
   try {
+    if (kind === "classify") {
+      const list = config.buyer_categories.map((c) => `${c.id}: ${c.label}`).join("\n");
+      const res = await client.messages.create({
+        model: SEQA_FAST_MODEL,
+        max_tokens: 100,
+        system: "Pick the 3 or 4 buyer category ids most likely to buy this product. Reply with ONLY a JSON array of ids.",
+        messages: [{ role: "user", content: `Product: ${clean}\n\nCategories:\n${list}` }],
+      });
+      const raw = textOf(res);
+      let ids = [];
+      try { ids = JSON.parse(raw.slice(raw.indexOf("["), raw.lastIndexOf("]") + 1)); } catch {}
+      const valid = ids.filter((id) => config.buyer_categories.some((c) => c.id === id));
+      return Response.json({ ids: valid });
+    }
     const res = await client.messages.create({
       model: SEQA_MODEL,
-      max_tokens: 400,
+      max_tokens: 100,
       system: SEQA_SYSTEM,
-      messages,
+      messages: [{ role: "user", content: `Company type: ${typeLabel}. They sell: ${clean}. Write one short, warm sentence acknowledging this.` }],
     });
-    const text = res.content.filter((b) => b.type === "text").map((b) => b.text).join("");
-    return Response.json({ text });
+    return Response.json({ text: textOf(res).trim() });
   } catch (e) {
-    console.error("Seqa Claude call failed:", e?.status, e?.message);
-    const detail = `${e?.status || ""} ${e?.message || "unknown error"}`.trim().slice(0, 300);
-    return Response.json({ error: `Seqa could not reply. Reason: ${detail}` }, { status: 500 });
+    return errorJson(e);
   }
 }
