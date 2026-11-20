@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "agent": {
+    "name": "Seqa",
+    "greeting": "Hi, I'm Seqa. What do you sell?"
+  },
+  "buyer_categories": [
+    { "id": "saas", "label": "SaaS and AI software companies", "note": "Software and AI products sold to businesses" },
+    { "id": "ecommerce_d2c", "label": "Ecommerce and D2C brands", "note": "Brands selling directly to consumers online and offline" },
+    { "id": "fintech", "label": "Fintech companies", "note": "Payments, lending, banking and money software" },
+    { "id": "logistics", "label": "Logistics and supply chain firms", "note": "Freight, fulfilment, last mile and supply chain tech" },
+    { "id": "agencies", "label": "Marketing and growth agencies", "note": "Agencies that run marketing for other businesses" },
+    { "id": "it_services", "label": "IT and consulting firms", "note": "Software services, consulting and implementation firms" }
+  ],
+  "company_types": [
+    {
+      "id": "b2b_saas",
+      "label": "B2B SaaS",
+      "note": "Software you sell to other businesses",
+      "seqa_says": "Nice. Software buyers can be very different. Here are the groups that fit best.",
+      "buyer_category_ids": ["saas", "ecommerce_d2c", "fintech", "agencies", "it_services"]
+    },
+    {
+      "id": "ai_data",
+      "label": "AI and data tools",
+      "note": "AI products, APIs, analytics or automation",
+      "seqa_says": "Great. AI tools do well where there is a lot of manual work. Here are the groups to look at.",
+      "buyer_category_ids": ["saas", "ecommerce_d2c", "fintech", "logistics"]
+    },
+    {
+      "id": "agency",
+      "label": "Agency",
+      "note": "Marketing, design or development done for clients",
+      "seqa_says": "Good. Agencies usually win with growing brands that need help fast. Here is where to start.",
+      "buyer_category_ids": ["saas", "ecommerce_d2c", "fintech"]
+    },
+    {
+      "id": "it_services",
+      "label": "IT and professional services",
+      "note": "Consulting, implementation, staffing",
+      "seqa_says": "Got it. Service firms are usually hired by teams that are growing fast. Here are the groups.",
+      "buyer_category_ids": ["fintech", "logistics", "saas", "ecommerce_d2c"]
+    },
+    {
+      "id": "fintech_payments",
+      "label": "Fintech and payments",
+      "note": "Money, payments, lending or compliance products",
+      "seqa_says": "Nice. Payments and money tools fit businesses that move a lot of orders. Here are the groups.",
+      "buyer_category_ids": ["ecommerce_d2c", "saas", "logistics"]
+    },
+    {
+      "id": "commerce_tech",
+      "label": "Commerce tech",
+      "note": "Tools for retail, ecommerce or logistics",
+      "seqa_says": "Good. Your buyers are the ones moving products. Here are the groups to look at.",
+      "buyer_category_ids": ["ecommerce_d2c", "logistics", "saas", "agencies"]
+    },
+    {
+      "id": "other",
+      "label": "Something else",
+      "note": "Describe it in one line and Seqa will place it",
+      "seqa_says": "No problem. Tell me in one line what you sell and who you help, and I will match you.",
+      "buyer_category_ids": []
+    }
+  ],
+  "filters": {
+    "stage": ["Seed or pre-Series A", "Series A", "Series B", "Series C and later", "Established"],
+    "funding_size": ["Under 5M USD", "5M to 20M USD", "Over 20M USD", "Not applicable"]
+  },
+  "notes": "Healthcare providers and retailers are left out of version 1 so each buyer category has enough companies. Established means a firm not funded by venture capital."
+}

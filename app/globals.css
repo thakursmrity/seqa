@@ -1,0 +1,17 @@
+:root { --purple: #5B2FE0; --bg: #f7f5ff; --ink: #1c1633; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, sans-serif; background: var(--bg); color: var(--ink); }
+.wrap { max-width: 640px; margin: 0 auto; padding: 32px 20px; }
+.badge { display: inline-block; background: var(--purple); color: #fff; border-radius: 999px; padding: 4px 12px; font-size: 12px; }
+h1 { margin: 12px 0 4px; }
+.sub { color: #6b6485; margin: 0 0 24px; }
+.card { background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 2px 12px rgba(91,47,224,.08); }
+.msg { padding: 10px 14px; border-radius: 14px; margin: 8px 0; max-width: 85%; white-space: pre-wrap; }
+.seqa { background: #efe9ff; }
+.me { background: var(--purple); color: #fff; margin-left: auto; }
+input { width: 100%; padding: 12px; border: 1px solid #d9d2f2; border-radius: 10px; font-size: 16px; }
+button { background: var(--purple); color: #fff; border: 0; border-radius: 10px; padding: 12px 18px; font-size: 16px; cursor: pointer; margin-top: 10px; }
+button:disabled { opacity: .5; }
+.row { display: flex; gap: 8px; }
+.row button { margin-top: 0; }
+.small { font-size: 13px; color: #6b6485; }
