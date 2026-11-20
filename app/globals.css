@@ -13,7 +13,7 @@
   --on-purple: #ffffff;
   --tint: #f1ecfb;
   --tint-ink: #4a2bb8;
-  --glow-1: rgba(255, 196, 150, 0.42);
+  --glow-1: rgba(236, 170, 235, 0.36);
   --glow-2: rgba(255, 150, 190, 0.28);
   --glow-3: rgba(150, 225, 200, 0.38);
   --shadow: 0 1px 2px rgba(43, 39, 64, 0.04), 0 6px 20px rgba(43, 39, 64, 0.06);
@@ -198,7 +198,7 @@ code { background: var(--surface-2); padding: 1px 6px; border-radius: 6px; }
 /* ===== Professional layer ===== */
 body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; background-image: radial-gradient(color-mix(in srgb, var(--ink) 9%, transparent) 1px, transparent 1px); background-size: 26px 26px; mask-image: linear-gradient(180deg, #000, transparent 70%); -webkit-mask-image: linear-gradient(180deg, #000, transparent 70%); }
 h1 { letter-spacing: -0.02em; }
-.grad { background: linear-gradient(100deg, var(--purple), #d6479b 60%, #e8893a); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.grad { background: linear-gradient(100deg, var(--purple), #d6479b 60%, #9b5cf0); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .tiny { font-size: 11px; color: var(--muted); }
 button:not(.ghost):not(.chip):not(.idea):not(.li) { background: linear-gradient(135deg, var(--purple), color-mix(in srgb, var(--purple) 70%, #d6479b)); box-shadow: 0 4px 14px color-mix(in srgb, var(--purple) 30%, transparent); }
 .btn { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, var(--purple), color-mix(in srgb, var(--purple) 70%, #d6479b)); box-shadow: 0 4px 14px color-mix(in srgb, var(--purple) 30%, transparent); }
@@ -206,7 +206,7 @@ button:disabled { opacity: .5; box-shadow: none; cursor: default; }
 .card { transition: box-shadow .2s, transform .2s; }
 .stats .card:hover, .agrid .card:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
 
-.orb { display: inline-flex; flex: none; border-radius: 50%; background: conic-gradient(from 200deg, #6d5df0, #d6479b, #e8893a, #2fa97c, #6d5df0); padding: 2px; box-shadow: 0 4px 16px color-mix(in srgb, var(--purple) 35%, transparent); }
+.orb { display: inline-flex; flex: none; border-radius: 50%; background: conic-gradient(from 200deg, #6d5df0, #d6479b, #9b5cf0, #2fa97c, #6d5df0); padding: 2px; box-shadow: 0 4px 16px color-mix(in srgb, var(--purple) 35%, transparent); }
 .orb i { flex: 1; border-radius: 50%; background: radial-gradient(circle at 32% 28%, #fff 0 12%, transparent 40%), linear-gradient(135deg, #7c6cf5, #b84fd0); }
 .av { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; color: #fff; font-weight: 700; flex: none; }
 .ring { position: relative; display: inline-flex; align-items: center; justify-content: center; flex: none; }
@@ -296,7 +296,7 @@ body::before { opacity: .6; }
 html { scroll-behavior: smooth; }
 body::after { content: ""; position: fixed; inset: -10%; z-index: -1; pointer-events: none;
   background:
-    radial-gradient(420px 420px at 15% 20%, rgba(255,170,120,.30), transparent 70%),
+    radial-gradient(420px 420px at 15% 20%, rgba(225,160,240,.28), transparent 70%),
     radial-gradient(380px 380px at 85% 15%, rgba(255,120,175,.22), transparent 70%),
     radial-gradient(460px 460px at 60% 90%, rgba(110,215,185,.28), transparent 70%);
   animation: drift 26s ease-in-out infinite alternate; }
@@ -331,7 +331,7 @@ body::after { content: ""; position: fixed; inset: -10%; z-index: -1; pointer-ev
 .orb i { animation: spin 14s linear infinite; background: radial-gradient(circle at 32% 28%, #fff 0 12%, transparent 40%), linear-gradient(135deg, #7c6cf5, #b84fd0); }
 @keyframes breathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.07); } }
 @keyframes spin { to { transform: rotate(360deg); } }
-.ask-cta { background-size: 200% 100%; background-image: linear-gradient(110deg, var(--purple), #d6479b, #e8893a, var(--purple)); animation: flowbg 6s linear infinite; }
+.ask-cta { background-size: 200% 100%; background-image: linear-gradient(110deg, var(--purple), #d6479b, #9b5cf0, var(--purple)); animation: flowbg 6s linear infinite; }
 @keyframes flowbg { to { background-position: 200% 0; } }
 
 /* pipeline: columns have a flowing current, cards slide in */
