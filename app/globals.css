@@ -208,7 +208,7 @@ button:disabled { opacity: .5; box-shadow: none; cursor: default; }
 
 .orb { display: inline-flex; flex: none; border-radius: 50%; background: conic-gradient(from 200deg, #6d5df0, #d6479b, #e8893a, #2fa97c, #6d5df0); padding: 2px; box-shadow: 0 4px 16px color-mix(in srgb, var(--purple) 35%, transparent); }
 .orb i { flex: 1; border-radius: 50%; background: radial-gradient(circle at 32% 28%, #fff 0 12%, transparent 40%), linear-gradient(135deg, #7c6cf5, #b84fd0); }
-.av { display: inline-flex; align-items: center; justify-content: center; border-radius: 11px; color: #fff; font-weight: 700; flex: none; }
+.av { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; color: #fff; font-weight: 700; flex: none; }
 .ring { position: relative; display: inline-flex; align-items: center; justify-content: center; flex: none; }
 .ring b { position: absolute; font-size: 12px; }
 
@@ -369,10 +369,13 @@ button:not(:disabled):active, .btn:active { transform: scale(.97); }
 .logout:hover { background: var(--surface-2); color: var(--ink); }
 .prof-top { display: flex; align-items: center; gap: 18px; }
 .av { box-shadow: 0 4px 14px rgba(40,30,20,.14); }
-.emoji-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; }
-.emo { margin: 0; padding: 8px 0; font-size: 20px; border-radius: 12px; }
-.emo.on, .hue.on { outline: 2px solid var(--purple); outline-offset: 2px; }
+.shape-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; justify-items: center; }
+.shp { background: transparent !important; box-shadow: none !important; padding: 3px; margin: 0; border-radius: 50%; border: 2px solid transparent; }
+.shp::after { display: none !important; }
+.shp:hover { transform: translateY(-2px); }
+.shp.on, .hue.on { border-color: var(--purple); outline: 0; }
+.hue.on { box-shadow: 0 0 0 3px var(--tint) !important; }
 .hue-row { display: flex; gap: 10px; }
 .hue { width: 34px; height: 34px; padding: 0; border-radius: 50%; margin: 0; box-shadow: none; }
 .two-in { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-@media (max-width: 800px) { .me-name, .me-txt .tiny { display: none; } .me-btn { width: auto; } .logout { white-space: nowrap; } .emoji-grid { grid-template-columns: repeat(4, 1fr); } .two-in { grid-template-columns: 1fr; } }
+@media (max-width: 800px) { .me-name, .me-txt .tiny { display: none; } .me-btn { width: auto; } .logout { white-space: nowrap; } .shape-grid { grid-template-columns: repeat(4, 1fr); } .two-in { grid-template-columns: 1fr; } }

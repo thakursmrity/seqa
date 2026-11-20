@@ -50,7 +50,7 @@ export default function WorkspaceLayout({ children }) {
         </nav>
         <div className="side-foot">
           <Link href="/w/profile" className={`me-btn ${path === "/w/profile" ? "on" : ""}`}>
-            <Avatar name={me.full} size={36} emoji={me.emoji} hue={me.hue} />
+            <Avatar name={me.full} size={36} shape={me.shape} bg={me.bg} />
             <span className="me-txt"><span className="me-name">{me.full}</span><span className="tiny">View profile</span></span>
           </Link>
           <a href="#" className="logout" onClick={(e) => { e.preventDefault(); supabase.auth.signOut(); }}>Log out</a>
