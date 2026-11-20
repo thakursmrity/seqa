@@ -1,8 +1,8 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useWs } from "../../lib/workspace";
+import { useWs, meOf } from "../../lib/workspace";
 import { supabase } from "../../lib/supabase";
 import { Icon, Orb, Avatar } from "../../lib/ui";
 import DbSetup from "../../components/DbSetup";
@@ -20,7 +20,6 @@ export default function WorkspaceLayout({ children }) {
   const { session, ready, loaded, profile, drafts, dbError } = useWs();
   const router = useRouter();
   const path = usePathname();
-  const [menu, setMenu] = useState(false);
 
   useEffect(() => {
     if (!ready) return;
@@ -32,7 +31,7 @@ export default function WorkspaceLayout({ children }) {
   if (dbError) return <DbSetup message={dbError} />;
   if (!loaded || !profile?.onboarded) return null;
 
-  const who = profile.sender_name || session.user.email.split("@")[0];
+  const me = meOf(session.user, profile);
   const waiting = drafts.filter((d) => d.status === "draft").length;
   return (
     <div className="ws">
@@ -50,20 +49,11 @@ export default function WorkspaceLayout({ children }) {
           ))}
         </nav>
         <div className="side-foot">
-          {menu && (
-            <>
-              <div className="menu-back" onClick={() => setMenu(false)} />
-              <div className="menu">
-                <div className="menu-head"><Avatar name={who} size={40} /><div><b>{who}</b><div className="small">{session.user.email}</div></div></div>
-                <Link href="/w/settings" className="menu-item" onClick={() => setMenu(false)}><Icon name="gear" size={16} />Settings</Link>
-                <a href="#" className="menu-item" onClick={(e) => { e.preventDefault(); supabase.auth.signOut(); }}><Icon name="send" size={16} />Log out</a>
-              </div>
-            </>
-          )}
-          <button className="me-btn ghost" onClick={() => setMenu(!menu)} aria-label="Open profile menu">
-            <Avatar name={who} size={34} />
-            <span className="me-name">{who}</span>
-          </button>
+          <Link href="/w/profile" className={`me-btn ${path === "/w/profile" ? "on" : ""}`}>
+            <Avatar name={me.full} size={36} emoji={me.emoji} hue={me.hue} />
+            <span className="me-txt"><span className="me-name">{me.full}</span><span className="tiny">View profile</span></span>
+          </Link>
+          <a href="#" className="logout" onClick={(e) => { e.preventDefault(); supabase.auth.signOut(); }}>Log out</a>
         </div>
       </aside>
       <main className="main" key={path}><div className="page-in">{children}</div></main>
