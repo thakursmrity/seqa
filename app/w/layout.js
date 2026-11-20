@@ -35,7 +35,7 @@ export default function WorkspaceLayout({ children }) {
   return (
     <div className="ws">
       <aside className="side">
-        <div className="side-brand"><Orb size={34} /><div><strong>Seqa</strong><div className="tiny">by Sequor</div></div></div>
+        <div className="side-brand"><Orb size={34} /><div><strong>Seqa</strong><div className="tiny"><span className="live" />Live workspace</div></div></div>
         <Link href="/w/ask" className={`ask-cta ${path === "/w/ask" ? "on" : ""}`}>
           <Icon name="spark" /> Ask Seqa
         </Link>
@@ -52,7 +52,7 @@ export default function WorkspaceLayout({ children }) {
           <a href="#" className="small" onClick={(e) => { e.preventDefault(); supabase.auth.signOut(); }}>Log out</a>
         </div>
       </aside>
-      <main className="main">{children}</main>
+      <main className="main" key={path}><div className="page-in">{children}</div></main>
     </div>
   );
 }
