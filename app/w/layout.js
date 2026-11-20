@@ -1,10 +1,10 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useWs } from "../../lib/workspace";
 import { supabase } from "../../lib/supabase";
-import { Icon, Orb } from "../../lib/ui";
+import { Icon, Orb, Avatar } from "../../lib/ui";
 import DbSetup from "../../components/DbSetup";
 
 const NAV = [
@@ -20,6 +20,7 @@ export default function WorkspaceLayout({ children }) {
   const { session, ready, loaded, profile, drafts, dbError } = useWs();
   const router = useRouter();
   const path = usePathname();
+  const [menu, setMenu] = useState(false);
 
   useEffect(() => {
     if (!ready) return;
@@ -31,6 +32,7 @@ export default function WorkspaceLayout({ children }) {
   if (dbError) return <DbSetup message={dbError} />;
   if (!loaded || !profile?.onboarded) return null;
 
+  const who = profile.sender_name || session.user.email.split("@")[0];
   const waiting = drafts.filter((d) => d.status === "draft").length;
   return (
     <div className="ws">
@@ -48,8 +50,20 @@ export default function WorkspaceLayout({ children }) {
           ))}
         </nav>
         <div className="side-foot">
-          <div className="small">{session.user.email}</div>
-          <a href="#" className="small" onClick={(e) => { e.preventDefault(); supabase.auth.signOut(); }}>Log out</a>
+          {menu && (
+            <>
+              <div className="menu-back" onClick={() => setMenu(false)} />
+              <div className="menu">
+                <div className="menu-head"><Avatar name={who} size={40} /><div><b>{who}</b><div className="small">{session.user.email}</div></div></div>
+                <Link href="/w/settings" className="menu-item" onClick={() => setMenu(false)}><Icon name="gear" size={16} />Settings</Link>
+                <a href="#" className="menu-item" onClick={(e) => { e.preventDefault(); supabase.auth.signOut(); }}><Icon name="send" size={16} />Log out</a>
+              </div>
+            </>
+          )}
+          <button className="me-btn ghost" onClick={() => setMenu(!menu)} aria-label="Open profile menu">
+            <Avatar name={who} size={34} />
+            <span className="me-name">{who}</span>
+          </button>
         </div>
       </aside>
       <main className="main" key={path}><div className="page-in">{children}</div></main>
