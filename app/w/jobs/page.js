@@ -9,7 +9,7 @@ export default function Jobs() {
     { n: "Researcher", i: "search", d: "Reads a company's facts and writes a one-page brief: summary, needs, who to contact, an opening angle.", model: "Sonnet", live: true, stat: `${prospects.filter((p) => p.brief).length} briefs written`, href: "/w/pipeline" },
     { n: "Writer", i: "mail", d: "Drafts a short, warm first email grounded in the brief. Never sends it.", model: "Sonnet", live: true, stat: `${drafts.length} drafts written`, href: "/w/outreach" },
     { n: "Scorer", i: "star", d: "Rates how well each company fits what you sell, with a one line reason.", model: "Haiku", live: true, stat: `${prospects.filter((p) => p.fit).length} companies scored`, href: "/w/prospects" },
-    { n: "Finder", i: "users", d: "Looks for new companies and the right person at each one.", live: false },
+    { n: "Finder", i: "users", d: "Searches the live web for companies that match who you sell to. Contact finding comes next.", model: "Sonnet", live: true, stat: `${prospects.filter((x) => x.company_id.startsWith("web:")).length} found on the web`, href: "/w/prospects" },
     { n: "Follow up", i: "send", d: "Nudges you when nobody has replied after a few days.", live: false },
     { n: "Reply reader", i: "list", d: "Sorts replies into interested, not now and no.", live: false },
   ];

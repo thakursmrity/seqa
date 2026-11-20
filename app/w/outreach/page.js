@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useWs, companyById } from "../../../lib/workspace";
+import { useWs, companyOf } from "../../../lib/workspace";
 
 export default function Outreach() {
   const { prospects, drafts, updateDraft, removeDraft, updateProspect } = useWs();
@@ -12,7 +12,7 @@ export default function Outreach() {
 
   const current = drafts.find((d) => d.id === sel) || null;
   const prospectOf = (d) => prospects.find((p) => p.id === d.prospect_id);
-  const nameOf = (d) => companyById[prospectOf(d)?.company_id]?.company || "Company";
+  const nameOf = (d) => companyOf(prospectOf(d))?.company || "Company";
 
   useEffect(() => {
     if (!sel && drafts.length) setSel(drafts[0].id);

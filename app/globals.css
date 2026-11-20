@@ -379,3 +379,15 @@ button:not(:disabled):active, .btn:active { transform: scale(.97); }
 .hue { width: 34px; height: 34px; padding: 0; border-radius: 50%; margin: 0; box-shadow: none; }
 .two-in { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 @media (max-width: 800px) { .me-name, .me-txt .tiny { display: none; } .me-btn { width: auto; } .logout { white-space: nowrap; } .shape-grid { grid-template-columns: repeat(4, 1fr); } .two-in { grid-template-columns: 1fr; } }
+
+/* Finder */
+.finder { margin-bottom: 14px; }
+.finder-head { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+.finder-row { display: flex; gap: 10px; }
+.finder-row button { margin: 0; flex: none; display: inline-flex; align-items: center; gap: 6px; }
+.found { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-top: 14px; }
+.found-item { border: 1px solid var(--line); border-radius: 14px; padding: 14px; background: var(--surface); animation: rise .4s ease both; }
+.found-top { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.found-item .what { margin: 8px 0 4px; font-size: 14px; line-height: 1.45; }
+.found-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+@media (max-width: 600px) { .finder-row { flex-direction: column; } }

@@ -3,7 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Icon } from "../../lib/ui";
-import { useWs, companyById, STATUSES, daysAgo } from "../../lib/workspace";
+import { useWs, companyOf, STATUSES, daysAgo } from "../../lib/workspace";
 
 export default function HomePage() {
   const router = useRouter();
@@ -26,7 +26,7 @@ export default function HomePage() {
   if (noBrief > 0) tips.push({ t: `${noBrief} compan${noBrief > 1 ? "ies are" : "y is"} waiting for a brief`, d: "Open one and press Write brief.", href: "/w/pipeline" });
   if (waiting > 0) tips.push({ t: `${waiting} email draft${waiting > 1 ? "s" : ""} waiting for your OK`, d: "Review, edit and open in Gmail.", href: "/w/outreach" });
   prospects.filter((p) => p.status === "contacted" && daysAgo(p.updated_at) >= 3).slice(0, 3).forEach((p) =>
-    tips.push({ t: `Follow up with ${companyById[p.company_id]?.company}`, d: `Contacted ${daysAgo(p.updated_at)} days ago with no update.`, href: "/w/pipeline" })
+    tips.push({ t: `Follow up with ${companyOf(p)?.company}`, d: `Contacted ${daysAgo(p.updated_at)} days ago with no update.`, href: "/w/pipeline" })
   );
 
   return (

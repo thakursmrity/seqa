@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import ProspectDrawer from "../../../components/ProspectDrawer";
-import { useWs, companyById, STATUSES } from "../../../lib/workspace";
+import { useWs, companyOf, STATUSES } from "../../../lib/workspace";
 
 export default function Pipeline() {
   const { prospects, updateProspect } = useWs();
@@ -26,11 +26,11 @@ export default function Pipeline() {
             <div key={key} className={`bcol ${over === key ? "over" : ""}`} onDragOver={(e) => { e.preventDefault(); setOver(key); }} onDragLeave={() => setOver("")} onDrop={(e) => drop(e, key)}>
               <h4><span>{label}</span><span className="small">{items.length}</span></h4>
               {items.map((p) => {
-                const c = companyById[p.company_id];
+                const c = companyOf(p);
                 return (
                   <div key={p.id} className="kc" draggable onDragStart={(e) => e.dataTransfer.setData("text/plain", p.id)} onClick={() => setOpen(p.company_id)}>
                     <b>{c?.company}</b>
-                    <div className="small">{c?.stage}</div>
+                    <div className="small">{c?.stage || c?.category}</div>
                     <div style={{ marginTop: 6 }}>{p.fit ? <span className="score">Fit {p.fit}/10</span> : null} {p.brief ? <span className="pill tint">Brief</span> : null}</div>
                   </div>
                 );

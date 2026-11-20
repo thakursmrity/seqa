@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import config from "../../../data/seqa_config.json";
 import ProspectDrawer from "../../../components/ProspectDrawer";
 import { useWs, COMPANIES, statusLabel } from "../../../lib/workspace";
+import { Icon, Orb } from "../../../lib/ui";
 
 export default function Prospects() {
   const { profile, prospects, api, addProspects } = useWs();
@@ -14,6 +15,10 @@ export default function Prospects() {
   const [open, setOpen] = useState(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
+  const [want, setWant] = useState("");
+  const [finding, setFinding] = useState(false);
+  const [found, setFound] = useState(null);
+  const [findErr, setFindErr] = useState("");
 
   const byCompany = Object.fromEntries(prospects.map((p) => [p.company_id, p]));
   const toggle = (list, setList, v) => setList(list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
@@ -28,6 +33,23 @@ export default function Prospects() {
         (!t || c.company.toLowerCase().includes(t) || c.what_they_do.toLowerCase().includes(t))
     );
   }, [cats, stages, sizes, q]);
+
+  async function find() {
+    if (!want.trim() || finding) return;
+    setFinding(true); setFindErr(""); setFound(null);
+    try {
+      const r = await api("/api/find", { description: want, count: 6 });
+      if (r.error) setFindErr(r.error); else setFound(r.companies || []);
+    } catch { setFindErr("Seqa could not search right now. Try again."); }
+    setFinding(false);
+  }
+
+  async function addFound(list) {
+    const fresh = list.filter((c) => !byCompany[c.id]);
+    await addProspects(fresh.map((c) => ({ company_id: c.id, fit: c.fit, reason: c.reason, company: c })));
+    setFound((f) => f && f.filter((c) => !list.some((x) => x.id === c.id)));
+    setMsg(`${fresh.length} added to your pipeline.`);
+  }
 
   async function addPicked() {
     const ids = picked.filter((id) => !byCompany[id]);
@@ -52,6 +74,35 @@ export default function Prospects() {
       <div className="pagehead">
         <div><h1>Prospects</h1><p className="sub">{rows.length} of {COMPANIES.length} companies match your filters.</p></div>
         <button disabled={busy || picked.length === 0} onClick={addPicked}>{busy ? "Adding..." : `Add selected (${picked.length})`}</button>
+      </div>
+      <div className="card finder">
+        <div className="finder-head"><Orb size={30} /><div><b>Find new companies</b><div className="small">Describe who you sell to. Seqa searches the web live and shows what it finds. You choose what to add.</div></div></div>
+        <div className="finder-row">
+          <input value={want} onChange={(e) => setWant(e.target.value)} onKeyDown={(e) => e.key === "Enter" && find()} placeholder="e.g. private schools in Punjab, or HR heads at mid-size firms in Chandigarh" />
+          <button onClick={find} disabled={finding || !want.trim()}><Icon name="search" size={16} /> {finding ? "Searching..." : "Find"}</button>
+        </div>
+        {finding && <p className="small">Seqa is searching the web, this can take up to a minute.</p>}
+        {findErr && <p className="small" style={{ color: "var(--danger)" }}>{findErr}</p>}
+        {found && found.length === 0 && <p className="small">Nothing reliable found for that. Try a different description.</p>}
+        {found && found.length > 0 && (
+          <>
+            <div className="found">
+              {found.map((c) => (
+                <div key={c.id} className="found-item">
+                  <div className="found-top"><b>{c.company}</b>{c.fit ? <span className="score">Fit {c.fit}/10</span> : null}</div>
+                  <div className="small">{[c.category, c.location].filter(Boolean).join(" | ")}</div>
+                  <p className="what">{c.what_they_do}</p>
+                  {c.reason && <p className="small">{c.reason}</p>}
+                  <div className="found-foot">
+                    {c.source_url && <a className="small" href={c.source_url} target="_blank" rel="noreferrer">Source</a>}
+                    <button className="ghost small-btn" onClick={() => addFound([c])}>Add</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button className="small-btn" style={{ marginTop: 10 }} onClick={() => addFound(found)}>Add all {found.length}</button>
+          </>
+        )}
       </div>
       {msg && <p className="small">{msg}</p>}
       <div className="split">

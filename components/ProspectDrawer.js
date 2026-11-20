@@ -1,12 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useWs, companyById, STATUSES } from "../lib/workspace";
+import { useWs, companyById, companyOf, STATUSES } from "../lib/workspace";
 
 export default function ProspectDrawer({ companyId, onClose }) {
   const { profile, session, prospects, drafts, api, addProspects, updateProspect, removeProspect, addDraft } = useWs();
-  const c = companyById[companyId];
   const p = prospects.find((x) => x.company_id === companyId);
+  const c = companyById[companyId] || companyOf(p);
+  const web = companyId.startsWith("web:");
   const [busy, setBusy] = useState("");
   const [err, setErr] = useState("");
   const [contact, setContact] = useState({ name: "", role: "", email: "", notes: "" });
@@ -30,7 +31,7 @@ export default function ProspectDrawer({ companyId, onClose }) {
   async function brief() {
     setBusy("brief");
     setErr("");
-    const r = await api("/api/brief", { typeLabel: profile.type_label, sells: profile.sells, companyId: c.id });
+    const r = await api("/api/brief", { typeLabel: profile.type_label, sells: profile.sells, companyId: c.id, company: web ? c : undefined });
     if (r.error) setErr(r.error);
     else await updateProspect(p.id, { brief: r.brief, status: p.status === "new" ? "researched" : p.status });
     setBusy("");
@@ -40,7 +41,7 @@ export default function ProspectDrawer({ companyId, onClose }) {
     setBusy("draft");
     setErr("");
     const r = await api("/api/draft", {
-      typeLabel: profile.type_label, sells: profile.sells, companyId: c.id,
+      typeLabel: profile.type_label, sells: profile.sells, companyId: c.id, company: web ? c : undefined,
       contactName: contact.name, senderName: profile.sender_name || session.user.email.split("@")[0], angle: p.brief?.angle,
     });
     if (r.error) setErr(r.error);

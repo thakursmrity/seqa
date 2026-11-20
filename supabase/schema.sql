@@ -50,3 +50,6 @@ drop policy if exists "own drafts" on drafts;
 create policy "own profile" on profiles for all using (user_id = auth.uid()) with check (user_id = auth.uid());
 create policy "own prospects" on prospects for all using (user_id = auth.uid()) with check (user_id = auth.uid());
 create policy "own drafts" on drafts for all using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+-- Companies found live by Seqa are stored on the prospect itself.
+alter table prospects add column if not exists company jsonb;

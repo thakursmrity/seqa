@@ -2,6 +2,7 @@ import { SEQA_MODEL } from "../../../lib/settings";
 import { authUser, claude, errorJson } from "../../../lib/server";
 import { scoreCompanies } from "../../../lib/scoring";
 import { generateBrief, generateDraft } from "../../../lib/jobs";
+import { findCompanies, webCompany } from "../../../lib/finder";
 import config from "../../../data/seqa_config.json";
 import companies from "../../../data/seqa_companies.json";
 
@@ -27,6 +28,11 @@ const TOOLS = [
         limit: { type: "integer" },
       },
     },
+  },
+  {
+    name: "find_companies_web",
+    description: "Finder job: search the live web for real organisations matching a plain description of who the user sells to (for example private schools in Punjab). Use when the curated list does not cover the request. Returns candidates with ids starting web:, a fit score and a reason. Slow and costs more, so use it at most once per request.",
+    input_schema: { type: "object", properties: { description: { type: "string" }, count: { type: "integer" } }, required: ["description"] },
   },
   {
     name: "score_companies",
@@ -86,6 +92,7 @@ export async function POST(req) {
   const draftCount = (pid) => (draftRows || []).filter((d) => d.prospect_id === pid).length;
 
   const actions = [];
+  const webFound = {};
   let writes = 0;
 
   async function run(name, input) {
@@ -104,6 +111,13 @@ export async function POST(req) {
       actions.push({ type: "search", text: `Searched companies, found ${found.length}` });
       return found.map((c) => ({ id: c.id, company: c.company, category_id: c.category_id, stage: c.stage, funding: c.funding_size, what: c.what_they_do.slice(0, 100), in_pipeline: !!pipeline[c.id] }));
     }
+    if (name === "find_companies_web") {
+      if (Object.keys(webFound).length) return { error: "Already searched the web in this request." };
+      const list = await findCompanies(profile, input.description || "", input.count || 6);
+      list.forEach((c) => (webFound[c.id] = c));
+      actions.push({ type: "search", text: `Searched the web, found ${list.length}` });
+      return list.map((c) => ({ id: c.id, company: c.company, location: c.location, what: c.what_they_do, fit: c.fit, in_pipeline: !!pipeline[c.id] }));
+    }
     if (name === "score_companies") {
       const pool = (input.ids || []).slice(0, 15).map((id) => byId[id]).filter(Boolean);
       const scores = await scoreCompanies(pool, profile.type_label, profile.sells);
@@ -111,13 +125,14 @@ export async function POST(req) {
       return scores;
     }
     if (name === "add_to_pipeline") {
-      const list = (input.companies || []).slice(0, MAX_ADD).filter((x) => byId[x.id] && !pipeline[x.id]);
+      const known = (x) => byId[x.id] || webFound[x.id];
+      const list = (input.companies || []).slice(0, MAX_ADD).filter((x) => known(x) && !pipeline[x.id]);
       if (!list.length) return { added: 0, note: "Those companies are already in the pipeline or unknown." };
-      const payload = list.map((x) => ({ user_id: user.id, company_id: x.id, fit: Number.isFinite(x.fit) ? x.fit : null, reason: x.reason || null }));
+      const payload = list.map((x) => ({ user_id: user.id, company_id: x.id, fit: Number.isFinite(x.fit) ? x.fit : webFound[x.id]?.fit ?? null, reason: x.reason || webFound[x.id]?.reason || null, ...(webFound[x.id] ? { company: webFound[x.id] } : {}) }));
       const { data, error } = await db.from("prospects").upsert(payload, { onConflict: "user_id,company_id", ignoreDuplicates: true }).select();
       if (error) return { error: error.message };
       (data || []).forEach((r) => (pipeline[r.company_id] = r));
-      actions.push({ type: "add", text: `Added ${data?.length || 0} to your pipeline: ${list.map((x) => byId[x.id].company).join(", ")}` });
+      actions.push({ type: "add", text: `Added ${data?.length || 0} to your pipeline: ${list.map((x) => known(x).company).join(", ")}` });
       return { added: data?.length || 0 };
     }
     if (name === "write_brief" || name === "draft_email") {
@@ -125,7 +140,7 @@ export async function POST(req) {
       if (!row) return { error: "That company is not in the pipeline yet. Add it first." };
       if (writes >= MAX_WRITES) return { error: "Limit reached for this request. Tell the user to ask again for the rest." };
       writes += 1;
-      const c = byId[input.company_id];
+      const c = byId[input.company_id] || webCompany(input.company_id, row.company || {});
       if (name === "write_brief") {
         const brief = await generateBrief(profile, c);
         if (!brief) return { error: "Could not write the brief." };
@@ -143,7 +158,7 @@ export async function POST(req) {
     }
     if (name === "list_pipeline") {
       actions.push({ type: "list", text: "Checked your pipeline" });
-      return Object.values(pipeline).map((r) => ({ company_id: r.company_id, company: byId[r.company_id]?.company, status: r.status, fit: r.fit, has_brief: !!r.brief, drafts: draftCount(r.id) }));
+      return Object.values(pipeline).map((r) => ({ company_id: r.company_id, company: byId[r.company_id]?.company || r.company?.company, status: r.status, fit: r.fit, has_brief: !!r.brief, drafts: draftCount(r.id) }));
     }
     return { error: "Unknown job." };
   }
@@ -152,6 +167,7 @@ export async function POST(req) {
 The user: ${profile.sender_name || "the user"}. Company type: ${profile.type_label}. They sell: ${profile.sells}. Their chosen buyer categories: ${(profile.buyer_ids || []).join(", ") || "none"}.
 Rules:
 - Do the work with tools, do not just describe it. Chain jobs when asked, for example search, then score, then add the best, then write briefs.
+- Prefer the curated list. Use find_companies_web only when the request is about something the curated list does not cover, such as schools or local businesses.
 - Use the user's buyer categories when they do not name one. Add at most 5 companies unless asked for more.
 - You can only draft emails. You can never send them. Say drafts are waiting in Outreach for the user to review.
 - Only use companies returned by your tools. Never invent companies, facts or contact details.
