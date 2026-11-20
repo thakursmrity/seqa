@@ -35,6 +35,14 @@ export default function Home() {
     }
   }
 
+  async function google() {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: window.location.origin },
+    });
+    if (error) setNote(error.message);
+  }
+
   async function send(e) {
     e.preventDefault();
     if (!input.trim() || busy) return;
@@ -65,6 +73,8 @@ export default function Home() {
 
       {!session ? (
         <div className="card">
+          <button type="button" onClick={google} style={{ width: "100%", marginTop: 0, marginBottom: 12 }}>Continue with Google</button>
+          <p className="small" style={{ textAlign: "center" }}>or use email and password</p>
           <form onSubmit={login}>
             <p>{mode === "signup" ? "Create your account to start." : "Welcome back. Log in to continue."}</p>
             <input type="email" required placeholder="you@company.com" value={email} onChange={(e) => setEmail(e.target.value)} />
