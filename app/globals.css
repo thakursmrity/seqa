@@ -391,3 +391,9 @@ button:not(:disabled):active, .btn:active { transform: scale(.97); }
 .found-item .what { margin: 8px 0 4px; font-size: 14px; line-height: 1.45; }
 .found-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
 @media (max-width: 600px) { .finder-row { flex-direction: column; } }
+
+.finder-people { display: flex; gap: 8px; margin-bottom: 8px; }
+.finder-people input { flex: 1; }
+.finder-people button { margin: 0; flex: none; }
+.person { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; margin-top: 8px; background: var(--surface); }
+.person-act { display: flex; align-items: center; gap: 10px; flex: none; }

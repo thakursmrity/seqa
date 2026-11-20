@@ -10,6 +10,9 @@ export default function ProspectDrawer({ companyId, onClose }) {
   const web = companyId.startsWith("web:");
   const [busy, setBusy] = useState("");
   const [err, setErr] = useState("");
+  const [people, setPeople] = useState(null);
+  const [titles, setTitles] = useState("");
+  const [looking, setLooking] = useState("");
   const [contact, setContact] = useState({ name: "", role: "", email: "", notes: "" });
 
   useEffect(() => {
@@ -47,6 +50,25 @@ export default function ProspectDrawer({ companyId, onClose }) {
     if (r.error) setErr(r.error);
     else await addDraft(p.id, r.subject, r.body);
     setBusy("");
+  }
+
+  async function findPeopleNow() {
+    setBusy("people"); setErr(""); setPeople(null);
+    const t = (titles || (p?.brief?.buyers || []).join(", ") || "Founder, Director, Head, Manager").split(",").map((x) => x.trim()).filter(Boolean);
+    const r = await api("/api/contacts", { companyId: c.id, name: c.company, website: c.website, titles: t });
+    if (r.error) setErr(r.error); else setPeople(r.people || []);
+    setBusy("");
+  }
+
+  async function getEmail(person) {
+    setLooking(person.profile_url); setErr("");
+    const r = await api("/api/contacts", { action: "email", profileUrl: person.profile_url });
+    setLooking("");
+    if (r.error) return setErr(r.error);
+    if (!r.email) return setErr(`No email found for ${person.name}.`);
+    const next = { ...contact, name: person.name, role: person.title, email: r.email };
+    setContact(next);
+    await updateProspect(p.id, { contact_name: next.name, contact_role: next.role, contact_email: next.email });
   }
 
   const saveContact = () =>
@@ -96,6 +118,24 @@ export default function ProspectDrawer({ companyId, onClose }) {
             )}
 
             <h3 className="dh">Contact</h3>
+            <div className="finder-people">
+              <input placeholder={`Job titles to look for, e.g. ${(p?.brief?.buyers || ["Principal", "Director"]).slice(0, 2).join(", ")}`} value={titles} onChange={(e) => setTitles(e.target.value)} />
+              <button className="ghost small-btn" disabled={busy === "people"} onClick={findPeopleNow}>{busy === "people" ? "Looking..." : "Find contacts"}</button>
+            </div>
+            {c.public_contact?.email && (
+              <p className="small">Email Seqa saw on their site (check it first): <b>{c.public_contact.email}</b> <a href="#" onClick={(e) => { e.preventDefault(); const next = { ...contact, email: c.public_contact.email }; setContact(next); updateProspect(p.id, { contact_email: next.email }); }}>Use it</a></p>
+            )}
+            {people && people.length === 0 && <p className="small">No people found. Try other titles.</p>}
+            {people && people.map((x) => (
+              <div key={x.profile_url} className="person">
+                <div><b>{x.name}</b><div className="small">{x.title}</div></div>
+                <div className="person-act">
+                  <a className="small" href={x.profile_url} target="_blank" rel="noopener noreferrer">Profile</a>
+                  <button className="ghost small-btn" disabled={looking === x.profile_url} onClick={() => getEmail(x)}>{looking === x.profile_url ? "..." : "Get email"}</button>
+                </div>
+              </div>
+            ))}
+            {people && people.length > 0 && <p className="small">Each email lookup uses Crustdata credits. Emails come from Crustdata and are not checked by Seqa.</p>}
             <input placeholder="Contact name" value={contact.name} onChange={(e) => setContact({ ...contact, name: e.target.value })} onBlur={saveContact} />
             <input placeholder="Role" value={contact.role} onChange={(e) => setContact({ ...contact, role: e.target.value })} onBlur={saveContact} style={{ marginTop: 8 }} />
             <input placeholder="Email" type="email" value={contact.email} onChange={(e) => setContact({ ...contact, email: e.target.value })} onBlur={saveContact} style={{ marginTop: 8 }} />
