@@ -4,15 +4,16 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useWs } from "../../lib/workspace";
 import { supabase } from "../../lib/supabase";
+import { Icon, Orb } from "../../lib/ui";
 import DbSetup from "../../components/DbSetup";
 
 const NAV = [
-  ["/w", "Home"],
-  ["/w/prospects", "Prospects"],
-  ["/w/pipeline", "Pipeline"],
-  ["/w/outreach", "Outreach"],
-  ["/w/agents", "Seqa agents"],
-  ["/w/settings", "Settings"],
+  ["/w", "Home", "home"],
+  ["/w/prospects", "Prospects", "users"],
+  ["/w/pipeline", "Pipeline", "board"],
+  ["/w/outreach", "Outreach", "mail"],
+  ["/w/jobs", "Jobs", "jobs"],
+  ["/w/settings", "Settings", "gear"],
 ];
 
 export default function WorkspaceLayout({ children }) {
@@ -34,11 +35,14 @@ export default function WorkspaceLayout({ children }) {
   return (
     <div className="ws">
       <aside className="side">
-        <div className="side-brand"><span className="logo">S</span><strong>Seqa</strong></div>
+        <div className="side-brand"><Orb size={34} /><div><strong>Seqa</strong><div className="tiny">by Sequor</div></div></div>
+        <Link href="/w/ask" className={`ask-cta ${path === "/w/ask" ? "on" : ""}`}>
+          <Icon name="spark" /> Ask Seqa
+        </Link>
         <nav>
-          {NAV.map(([href, label]) => (
+          {NAV.map(([href, label, icon]) => (
             <Link key={href} href={href} className={`nav ${path === href ? "on" : ""}`}>
-              {label}
+              <span className="nav-l"><Icon name={icon} />{label}</span>
               {label === "Outreach" && waiting > 0 && <span className="count">{waiting}</span>}
             </Link>
           ))}

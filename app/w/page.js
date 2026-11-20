@@ -1,8 +1,15 @@
 "use client";
+import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Icon } from "../../lib/ui";
 import { useWs, companyById, STATUSES, daysAgo } from "../../lib/workspace";
 
 export default function HomePage() {
+  const router = useRouter();
+  const [q, setQ] = useState("");
+  const hour = new Date().getHours();
+  const hi = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
   const { profile, prospects, drafts } = useWs();
   const total = prospects.length;
   const briefs = prospects.filter((p) => p.brief).length;
@@ -24,7 +31,20 @@ export default function HomePage() {
 
   return (
     <>
-      <div className="pagehead"><div><h1>Home</h1><p className="sub">Your sales workspace for {profile.sells}.</p></div><Link href="/w/prospects" className="btn">Find companies</Link></div>
+      <div className="hero">
+        <h1 className="grad">{hi}{profile.sender_name ? `, ${profile.sender_name}` : ""}</h1>
+        <p className="sub">Your sales workspace for {profile.sells}.</p>
+        <form className="cmd" onSubmit={(e) => { e.preventDefault(); router.push(`/w/ask?q=${encodeURIComponent(q.trim())}`); }}>
+          <Icon name="spark" />
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Ask Seqa to find companies, write briefs or draft emails..." />
+          <button type="submit" disabled={!q.trim()}>Ask</button>
+        </form>
+        <div className="cmd-chips">
+          {["Find 5 companies that fit me", "What should I do today?", "Write briefs for my top 3"].map((x) => (
+            <button key={x} type="button" className="chip" onClick={() => router.push(`/w/ask?q=${encodeURIComponent(x)}`)}>{x}</button>
+          ))}
+        </div>
+      </div>
       <div className="stats">
         <div className="card"><div className="small">In pipeline</div><div className="stat">{total}</div></div>
         <div className="card"><div className="small">Briefs written</div><div className="stat">{briefs}</div></div>
