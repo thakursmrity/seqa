@@ -27,6 +27,8 @@ export async function POST(req) {
     const text = res.content.filter((b) => b.type === "text").map((b) => b.text).join("");
     return Response.json({ text });
   } catch (e) {
-    return Response.json({ error: "Seqa could not reply right now." }, { status: 500 });
+    console.error("Seqa Claude call failed:", e?.status, e?.message);
+    const detail = `${e?.status || ""} ${e?.message || "unknown error"}`.trim().slice(0, 300);
+    return Response.json({ error: `Seqa could not reply. Reason: ${detail}` }, { status: 500 });
   }
 }
